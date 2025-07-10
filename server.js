@@ -100,7 +100,7 @@ function checkCollisions() {
         
         // Rimuovi la palla e creane una nuova
         balls.splice(i, 1);
-        balls.push(createBall());
+        balls.push(createTarget()); // Usa createTarget invece di createBall
         
         // Aggiorna il punteggio per tutti i client
         io.emit('updateScores', Object.values(players).map(p => ({
