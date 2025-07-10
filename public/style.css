@@ -1,0 +1,274 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  width: 100%;
+}
+
+#welcome-screen {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+p {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button.disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+button.disabled:hover {
+  background-color: #cccccc;
+}
+
+#cancel-button {
+  background-color: #f44336;
+  margin-top: 20px;
+}
+
+#cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+#game-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.game-info {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+#scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.player-score {
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+#game-canvas {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.game-mode-selection {
+  margin: 10px 0;
+}
+
+.game-mode-selection h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mode-button {
+  padding: 10px;
+  background-color: #2196F3;
+  color: white;
+}
+
+.mode-button:hover {
+  background-color: #0b7dda;
+}
+
+.mode-button.active {
+  background-color: #0b7dda;
+  border: 2px solid #064579;
+}
+
+#matchmaking-screen {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Stili per l'animazione dei punti */
+.points-animation {
+  position: absolute;
+  font-size: 24px;
+  font-weight: bold;
+  pointer-events: none;
+  animation: fadeUp 1s ease-out forwards;
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+/* Stili per la schermata dei risultati */
+.game-results {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  color: white;
+  min-width: 300px;
+  z-index: 100;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-results h2 {
+  margin-bottom: 20px;
+  color: white;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.player-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+}
+
+.player-result.current-player {
+  border: 2px solid white;
+}
+
+.position {
+  font-size: 18px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.name {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.score {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+@media (max-width: 850px) {
+  #game-canvas {
+    width: 100%;
+    height: auto;
+  }
+  
+  .mode-buttons {
+    flex-direction: column;
+  }
+  
+  .game-results {
+    width: 90%;
+    padding: 20px;
+  }
+}

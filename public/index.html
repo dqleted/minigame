@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aim Training - Minigioco Multiplayer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Schermata iniziale per la selezione del nome e della modalità -->
+    <div id="welcome-screen">
+      <h1>Aim Training</h1>
+      <p>Metti alla prova la tua precisione! Clicca sui target prima che scompaiano per ottenere punti. Più piccolo è il target, più punti guadagni!</p>
+      <div class="form-group">
+        <input type="text" id="player-name" placeholder="Il tuo nome">
+        
+        <div class="game-mode-selection">
+          <h3>Seleziona modalità di gioco</h3>
+          <div class="mode-buttons">
+            <button class="mode-button active" data-mode="1v1">1v1</button>
+            <button class="mode-button disabled" data-mode="2v2">2v2 (Prossimamente)</button>
+            <button class="mode-button disabled" data-mode="ffa">Tutti contro tutti (Prossimamente)</button>
+          </div>
+        </div>
+        
+        <button id="start-button">Cerca partita</button>
+      </div>
+    </div>
+    
+    <!-- Schermata di attesa matchmaking -->
+    <div id="matchmaking-screen" style="display: none;">
+      <h2>Ricerca di un avversario in corso...</h2>
+      <div class="loader"></div>
+      <p id="waiting-message">Attendere mentre ti colleghiamo con un altro giocatore</p>
+      <button id="cancel-button">Annulla</button>
+    </div>
+    
+    <!-- Schermata di gioco -->
+    <div id="game-screen" style="display: none;">
+      <div class="game-info">
+        <h2>Punteggi</h2>
+        <div id="scoreboard"></div>
+      </div>
+      <canvas id="game-canvas" width="800" height="600"></canvas>
+    </div>
+  </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
