@@ -28,52 +28,89 @@ let gameActive = false; // Indica se la partita è attiva
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 
-// Gestione degli eventi del mouse
-canvas.addEventListener('mousemove', (event) => {
+// Funzione per gestire il movimento del mouse/touch
+function handlePointerMove(x, y) {
   const rect = canvas.getBoundingClientRect();
-  mouseX = event.clientX - rect.left;
-  mouseY = event.clientY - rect.top;
+  mouseX = x - rect.left;
+  mouseY = y - rect.top;
   
   // Invia la posizione al server
   if (playerId && gameActive) {
     socket.emit('playerMove', { x: mouseX, y: mouseY });
   }
-});
+}
 
-// Gestione del click del mouse
-canvas.addEventListener('click', (event) => {
+// Funzione per gestire il click del mouse/touch
+function handlePointerClick(x, y) {
   if (!playerId || !gameActive) return;
   
   const rect = canvas.getBoundingClientRect();
-  const clickX = event.clientX - rect.left;
-  const clickY = event.clientY - rect.top;
+  const clickX = x - rect.left;
+  const clickY = y - rect.top;
   
   // Invia la posizione del click al server
   socket.emit('playerClick', { x: clickX, y: clickY });
   
   // Effetto visivo del click
   drawClickEffect(clickX, clickY);
+}
+
+// Gestione degli eventi del mouse
+canvas.addEventListener('mousemove', (event) => {
+  handlePointerMove(event.clientX, event.clientY);
 });
 
-// Gestione dei pulsanti di selezione modalità
+canvas.addEventListener('click', (event) => {
+  handlePointerClick(event.clientX, event.clientY);
+});
+
+// Gestione degli eventi touch per dispositivi mobili
+canvas.addEventListener('touchmove', (event) => {
+  event.preventDefault(); // Previene lo scrolling della pagina
+  const touch = event.touches[0];
+  handlePointerMove(touch.clientX, touch.clientY);
+});
+
+canvas.addEventListener('touchend', (event) => {
+  event.preventDefault(); // Previene il comportamento predefinito
+  if (event.changedTouches.length > 0) {
+    const touch = event.changedTouches[0];
+    handlePointerClick(touch.clientX, touch.clientY);
+  }
+});
+
+// Funzione per gestire la selezione della modalità di gioco
+function selectGameMode(button) {
+  // Ignora i pulsanti disabilitati
+  if (button.classList.contains('disabled')) return;
+  
+  // Rimuovi la classe 'active' da tutti i pulsanti
+  modeButtons.forEach(btn => btn.classList.remove('active'));
+  
+  // Aggiungi la classe 'active' al pulsante cliccato
+  button.classList.add('active');
+  
+  // Imposta la modalità selezionata
+  selectedGameMode = button.getAttribute('data-mode');
+}
+
+// Gestione dei pulsanti di selezione modalità (click del mouse)
 modeButtons.forEach(button => {
   button.addEventListener('click', () => {
-    // Ignora i pulsanti disabilitati
-    if (button.classList.contains('disabled')) return;
-    
-    // Rimuovi la classe 'active' da tutti i pulsanti
-    modeButtons.forEach(btn => btn.classList.remove('active'));
-    
-    // Aggiungi la classe 'active' al pulsante cliccato
-    button.classList.add('active');
-    
-    // Imposta la modalità selezionata
-    selectedGameMode = button.getAttribute('data-mode');
+    selectGameMode(button);
+  });
+  
+  // Gestione dei pulsanti di selezione modalità (touch per dispositivi mobili)
+  button.addEventListener('touchend', function(e) {
+    e.preventDefault(); // Previene il comportamento predefinito
+    selectGameMode(button);
   });
 });
 
-// Gestione del pulsante di inizio matchmaking
-startButton.addEventListener('click', () => {
+// Funzione per gestire l'inizio del matchmaking
+function startMatchmaking() {
+  console.log('Pulsante Cerca partita cliccato');
+  
   const playerName = playerNameInput.value.trim();
   
   // Verifica che il nome sia stato inserito
@@ -91,16 +128,42 @@ startButton.addEventListener('click', () => {
   // Nascondi la schermata di benvenuto e mostra la schermata di attesa
   welcomeScreen.style.display = 'none';
   matchmakingScreen.style.display = 'block';
+}
+
+// Gestione del pulsante di inizio matchmaking (click del mouse)
+startButton.addEventListener('click', startMatchmaking);
+
+// Gestione del pulsante di inizio matchmaking (touch per dispositivi mobili)
+startButton.addEventListener('touchend', function(e) {
+  console.log('Evento touchend rilevato sul pulsante Cerca partita');
+  e.preventDefault(); // Previene il comportamento predefinito
+  startMatchmaking();
 });
 
-// Gestione del pulsante di annullamento matchmaking
-cancelButton.addEventListener('click', () => {
+// Aggiunta di un gestore touchstart per garantire la reattività
+startButton.addEventListener('touchstart', function(e) {
+  console.log('Evento touchstart rilevato sul pulsante Cerca partita');
+  // Non facciamo nulla qui, ma questo può aiutare a migliorare la reattività
+  // su alcuni dispositivi mobili
+});
+
+// Funzione per gestire l'annullamento del matchmaking
+function cancelMatchmaking() {
   // Annulla la ricerca
   socket.emit('cancelQueue');
   
   // Torna alla schermata di benvenuto
   matchmakingScreen.style.display = 'none';
   welcomeScreen.style.display = 'block';
+}
+
+// Gestione del pulsante di annullamento matchmaking (click del mouse)
+cancelButton.addEventListener('click', cancelMatchmaking);
+
+// Gestione del pulsante di annullamento matchmaking (touch per dispositivi mobili)
+cancelButton.addEventListener('touchend', function(e) {
+  e.preventDefault(); // Previene il comportamento predefinito
+  cancelMatchmaking();
 });
 
 // Permetti di iniziare anche premendo Invio

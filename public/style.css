@@ -283,4 +283,35 @@ h2 {
     width: 90%;
     padding: 20px;
   }
+  
+  /* Migliora l'usabilità su dispositivi mobili */
+  button {
+    padding: 15px;
+    font-size: 18px;
+    margin: 5px 0;
+    min-height: 50px; /* Altezza minima per facilitare il tocco */
+  }
+  
+  input {
+    padding: 15px;
+    font-size: 18px;
+    margin: 5px 0;
+  }
+  
+  #welcome-screen {
+    padding: 20px;
+  }
+  
+  /* Previene lo zoom quando si tocca un input su iOS */
+  input, select, textarea {
+    font-size: 16px;
+  }
+  
+  /* Migliora la visibilità del pulsante di avvio */
+  #start-button {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
 }
