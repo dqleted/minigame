@@ -153,18 +153,15 @@ io.on('connection', (socket) => {
       // Crea una nuova partita
       const gameId = `game_${gameIdCounter++}`;
       
-      // Inizializza le palle per questa partita
-      const gameBalls = [];
-      for (let i = 0; i < 10; i++) {
-        gameBalls.push(createBall());
-      }
+      // Inizializza i target per questa partita
+      const gameTargets = createTargetsForGame();
       
       // Crea la partita
 activeGames[gameId] = {
   id: gameId,
   mode: gameMode,
   players: {},
-  targets: createTargetsForGame(),
+  targets: gameTargets,
   startTime: Date.now(),
   endTime: Date.now() + (GAME_DURATION * 1000)
 };
