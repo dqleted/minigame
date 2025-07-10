@@ -161,7 +161,7 @@ activeGames[gameId] = {
   id: gameId,
   mode: gameMode,
   players: {},
-  targets: gameTargets,
+  playerTargets: {}, // Ogni giocatore avrà i propri target
   startTime: Date.now(),
   endTime: Date.now() + (GAME_DURATION * 1000)
 };
@@ -186,6 +186,10 @@ activeGames[gameId] = {
         color: getRandomColor(),
         score: 0
       };
+      
+      // Crea target separati per ogni giocatore
+      activeGames[gameId].playerTargets[opponent.id] = createTargetsForGame();
+      activeGames[gameId].playerTargets[socket.id] = createTargetsForGame();
       
       // Salva l'ID della partita per entrambi i giocatori
       playerGameId = gameId;
@@ -293,25 +297,32 @@ function updateGame(gameId) {
     return;
   }
   
-  // Aggiorna i target (riduci la dimensione)
-  for (let i = 0; i < game.targets.length; i++) {
-    const target = game.targets[i];
-    target.radius -= TARGET_SHRINK_SPEED;
+  // Aggiorna i target per ogni giocatore (riduci la dimensione)
+  for (const playerId in game.playerTargets) {
+    const playerTargets = game.playerTargets[playerId];
     
-    // Se il target diventa troppo piccolo, creane uno nuovo
-    if (target.radius <= MIN_TARGET_RADIUS) {
-      game.targets[i] = createTarget();
+    for (let i = 0; i < playerTargets.length; i++) {
+      const target = playerTargets[i];
+      target.radius -= TARGET_SHRINK_SPEED;
+      
+      // Se il target diventa troppo piccolo, creane uno nuovo
+      if (target.radius <= MIN_TARGET_RADIUS) {
+        playerTargets[i] = createTarget();
+      }
     }
   }
   
   // Controlla le collisioni (click sui target)
   for (const playerId in game.players) {
     const player = game.players[playerId];
+    const playerTargets = game.playerTargets[playerId];
+    
+    if (!playerTargets) continue; // Salta se non ci sono target per questo giocatore
     
     // Se il giocatore ha cliccato
     if (player.clicked) {
-      for (let i = 0; i < game.targets.length; i++) {
-        const target = game.targets[i];
+      for (let i = 0; i < playerTargets.length; i++) {
+        const target = playerTargets[i];
         
         // Calcola la distanza tra il click e il target
         const dx = player.clickX - target.x;
@@ -337,7 +348,7 @@ function updateGame(gameId) {
           });
           
           // Crea un nuovo target
-          game.targets[i] = createTarget();
+          playerTargets[i] = createTarget();
           
           // Aggiorna il punteggio per tutti i client nella partita
           io.to(gameId).emit('updateScores', Object.values(game.players).map(p => ({
@@ -360,15 +371,32 @@ function updateGame(gameId) {
   const timeLeft = Math.max(0, Math.floor((game.endTime - currentTime) / 1000));
   
   // Invia gli aggiornamenti ai client nella partita
-  io.to(gameId).emit('updateTargets', game.targets);
   io.to(gameId).emit('updatePlayers', Object.values(game.players));
   io.to(gameId).emit('updateTime', timeLeft);
+  
+  // I target vengono inviati individualmente a ciascun giocatore nel loop principale
 }
 
 // Loop principale del gioco che aggiorna tutte le partite attive
 setInterval(() => {
   for (const gameId in activeGames) {
     updateGame(gameId);
+    
+    // Invia gli aggiornamenti ai client
+    const game = activeGames[gameId];
+    
+    // Invia l'aggiornamento dei giocatori
+    io.to(gameId).emit('updatePlayers', Object.values(game.players));
+    
+    // Invia l'aggiornamento dei target specifici a ciascun giocatore
+    for (const playerId in game.playerTargets) {
+      // Invia i target solo al giocatore corrispondente
+      io.to(playerId).emit('updateTargets', game.playerTargets[playerId]);
+    }
+    
+    // Invia l'aggiornamento del tempo rimanente
+    const timeLeft = Math.max(0, Math.floor((game.endTime - Date.now()) / 1000));
+    io.to(gameId).emit('updateTime', timeLeft);
   }
 }, 1000 / 60); // 60 FPS
 
