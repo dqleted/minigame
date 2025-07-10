@@ -183,8 +183,10 @@ socket.on('targetHit', (hitData) => {
 socket.on('gameOver', (results) => {
   gameActive = false;
   
-  // Mostra i risultati finali
-  showGameResults(results.players);
+  // Mostra i risultati finali solo se la partita è terminata
+  if (results && results.players) {
+    showGameResults(results.players);
+  }
 });
 
 // Aggiorna i punteggi
@@ -217,12 +219,6 @@ function drawPlayer(player) {
   ctx.fillStyle = player.color;
   ctx.fill();
   ctx.closePath();
-  
-  // Disegna il nome del giocatore
-  ctx.font = '14px Arial';
-  ctx.fillStyle = 'black';
-  ctx.textAlign = 'center';
-  ctx.fillText(player.name, player.x, player.y - player.size / 2 - 5);
   
   // Evidenzia il giocatore corrente
   if (player.id === playerId) {
@@ -287,6 +283,12 @@ function showPointsAnimation(x, y, points, isCurrentPlayer) {
 
 // Funzione per mostrare i risultati finali
 function showGameResults(players) {
+  // Rimuovi eventuali risultati precedenti
+  const existingResults = document.querySelector('.game-results');
+  if (existingResults) {
+    existingResults.remove();
+  }
+  
   // Crea un elemento div per i risultati
   const resultsElement = document.createElement('div');
   resultsElement.className = 'game-results';
@@ -349,6 +351,42 @@ function showGameResults(players) {
   gameScreen.appendChild(resultsElement);
 }
 
+// Funzione per disegnare i nomi dei giocatori in una posizione fissa
+function drawPlayerNames() {
+  // Crea un'area per i nomi dei giocatori sopra il canvas
+  const playerNameArea = document.getElementById('player-names-area');
+  if (!playerNameArea) {
+    // Crea l'area se non esiste
+    const newPlayerNameArea = document.createElement('div');
+    newPlayerNameArea.id = 'player-names-area';
+    newPlayerNameArea.style.display = 'flex';
+    newPlayerNameArea.style.justifyContent = 'space-around';
+    newPlayerNameArea.style.marginBottom = '10px';
+    newPlayerNameArea.style.padding = '5px';
+    newPlayerNameArea.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+    newPlayerNameArea.style.borderRadius = '5px';
+    
+    // Inserisci l'area prima del canvas
+    canvas.parentNode.insertBefore(newPlayerNameArea, canvas);
+  }
+  
+  // Aggiorna l'area dei nomi
+  const playerNameArea = document.getElementById('player-names-area');
+  playerNameArea.innerHTML = '';
+  
+  // Aggiungi i nomi dei giocatori
+  Object.values(players).forEach(player => {
+    const nameElement = document.createElement('div');
+    nameElement.style.color = player.color;
+    nameElement.style.fontWeight = 'bold';
+    nameElement.style.padding = '5px';
+    nameElement.style.border = player.id === playerId ? '2px solid black' : 'none';
+    nameElement.style.borderRadius = '3px';
+    nameElement.textContent = player.name;
+    playerNameArea.appendChild(nameElement);
+  });
+}
+
 // Funzione per disegnare il gioco
 function draw() {
   // Pulisci il canvas
@@ -363,6 +401,9 @@ function draw() {
   Object.values(players).forEach(player => {
     drawPlayer(player);
   });
+  
+  // Disegna i nomi dei giocatori in una posizione fissa
+  drawPlayerNames();
   
   // Disegna il mirino del mouse se la partita è attiva
   if (gameActive) {
