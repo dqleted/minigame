@@ -5,7 +5,13 @@ const socketIO = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: "*",  // Consente connessioni da qualsiasi origine
+    methods: ["GET", "POST"],
+    credentials: false
+  }
+});
 
 // Imposta la cartella pubblica per servire i file statici
 app.use(express.static(path.join(__dirname, 'public')));
