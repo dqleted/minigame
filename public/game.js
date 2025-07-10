@@ -1,5 +1,32 @@
 // Connessione al server Socket.io
-const socket = io();
+let socket;
+
+try {
+  socket = io();
+  console.log('Socket.io connesso con successo');
+} catch (error) {
+  console.error('Errore nella connessione Socket.io:', error);
+  alert('Errore di connessione al server. Ricarica la pagina e riprova.');
+}
+
+// Aggiungi un gestore di errori globale
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Errore JavaScript:', message, 'in', source, 'linea', lineno, ':', error);
+  return false;
+};
+
+// Aggiungi gestori di eventi per debug
+document.addEventListener('click', function(e) {
+  console.log('Documento: evento click rilevato su', e.target.tagName, e.target.id || e.target.className);
+});
+
+document.addEventListener('touchstart', function(e) {
+  console.log('Documento: evento touchstart rilevato su', e.target.tagName, e.target.id || e.target.className);
+});
+
+document.addEventListener('touchend', function(e) {
+  console.log('Documento: evento touchend rilevato su', e.target.tagName, e.target.id || e.target.className);
+});
 
 // Elementi del DOM
 const welcomeScreen = document.getElementById('welcome-screen');
@@ -57,26 +84,38 @@ function handlePointerClick(x, y) {
 
 // Gestione degli eventi del mouse
 canvas.addEventListener('mousemove', (event) => {
+  console.log('Canvas: mousemove');
   handlePointerMove(event.clientX, event.clientY);
 });
 
 canvas.addEventListener('click', (event) => {
+  console.log('Canvas: click');
   handlePointerClick(event.clientX, event.clientY);
 });
 
 // Gestione degli eventi touch per dispositivi mobili
 canvas.addEventListener('touchmove', (event) => {
+  console.log('Canvas: touchmove');
   event.preventDefault(); // Previene lo scrolling della pagina
-  const touch = event.touches[0];
-  handlePointerMove(touch.clientX, touch.clientY);
+  if (event.touches.length > 0) {
+    const touch = event.touches[0];
+    handlePointerMove(touch.clientX, touch.clientY);
+  }
 });
 
 canvas.addEventListener('touchend', (event) => {
+  console.log('Canvas: touchend');
   event.preventDefault(); // Previene il comportamento predefinito
   if (event.changedTouches.length > 0) {
     const touch = event.changedTouches[0];
     handlePointerClick(touch.clientX, touch.clientY);
   }
+});
+
+// Aggiungi touchstart per migliorare la reattività
+canvas.addEventListener('touchstart', (event) => {
+  console.log('Canvas: touchstart');
+  event.preventDefault(); // Previene il comportamento predefinito
 });
 
 // Funzione per gestire la selezione della modalità di gioco
@@ -94,17 +133,21 @@ function selectGameMode(button) {
   selectedGameMode = button.getAttribute('data-mode');
 }
 
-// Gestione dei pulsanti di selezione modalità (click del mouse)
+// Gestione dei pulsanti di selezione modalità
 modeButtons.forEach(button => {
-  button.addEventListener('click', () => {
-    selectGameMode(button);
-  });
-  
-  // Gestione dei pulsanti di selezione modalità (touch per dispositivi mobili)
-  button.addEventListener('touchend', function(e) {
-    e.preventDefault(); // Previene il comportamento predefinito
-    selectGameMode(button);
-  });
+  if (!button.classList.contains('disabled')) {
+    // Usa entrambi gli eventi per garantire la compatibilità
+    button.addEventListener('click', function() {
+      console.log('Pulsante modalità: click', this.dataset.mode);
+      selectGameMode(this);
+    });
+    
+    button.addEventListener('touchend', function(e) {
+      e.preventDefault();
+      console.log('Pulsante modalità: touchend', this.dataset.mode);
+      selectGameMode(this);
+    });
+  }
 });
 
 // Funzione per gestire l'inizio del matchmaking
@@ -130,21 +173,23 @@ function startMatchmaking() {
   matchmakingScreen.style.display = 'block';
 }
 
-// Gestione del pulsante di inizio matchmaking (click del mouse)
-startButton.addEventListener('click', startMatchmaking);
-
-// Gestione del pulsante di inizio matchmaking (touch per dispositivi mobili)
-startButton.addEventListener('touchend', function(e) {
-  console.log('Evento touchend rilevato sul pulsante Cerca partita');
-  e.preventDefault(); // Previene il comportamento predefinito
+// Aggiungi event listener per il pulsante "Cerca partita"
+// Usa entrambi gli eventi per garantire la compatibilità
+startButton.addEventListener('click', function(e) {
+  console.log('Pulsante Cerca partita: click');
   startMatchmaking();
 });
 
-// Aggiunta di un gestore touchstart per garantire la reattività
+startButton.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  console.log('Pulsante Cerca partita: touchend');
+  startMatchmaking();
+});
+
+// Aggiungi touchstart per migliorare la reattività
 startButton.addEventListener('touchstart', function(e) {
-  console.log('Evento touchstart rilevato sul pulsante Cerca partita');
-  // Non facciamo nulla qui, ma questo può aiutare a migliorare la reattività
-  // su alcuni dispositivi mobili
+  e.preventDefault();
+  console.log('Pulsante Cerca partita: touchstart');
 });
 
 // Funzione per gestire l'annullamento del matchmaking
@@ -157,13 +202,23 @@ function cancelMatchmaking() {
   welcomeScreen.style.display = 'block';
 }
 
-// Gestione del pulsante di annullamento matchmaking (click del mouse)
-cancelButton.addEventListener('click', cancelMatchmaking);
-
-// Gestione del pulsante di annullamento matchmaking (touch per dispositivi mobili)
-cancelButton.addEventListener('touchend', function(e) {
-  e.preventDefault(); // Previene il comportamento predefinito
+// Gestione del pulsante di annullamento matchmaking
+// Usa entrambi gli eventi per garantire la compatibilità
+cancelButton.addEventListener('click', function() {
+  console.log('Pulsante Annulla: click');
   cancelMatchmaking();
+});
+
+cancelButton.addEventListener('touchend', function(e) {
+  e.preventDefault();
+  console.log('Pulsante Annulla: touchend');
+  cancelMatchmaking();
+});
+
+// Aggiungi touchstart per migliorare la reattività
+cancelButton.addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  console.log('Pulsante Annulla: touchstart');
 });
 
 // Permetti di iniziare anche premendo Invio
@@ -420,8 +475,9 @@ function showGameResults(players) {
   backButton.textContent = 'Torna al Menu';
   backButton.id = 'back-to-menu';
   
-  // Gestione del click per il pulsante Torna al Menu
-  backButton.addEventListener('click', () => {
+  // Funzione per tornare al menu principale
+  function backToMainMenu() {
+    console.log('Pulsante Torna al Menu cliccato');
     resultsElement.remove();
     gameScreen.style.display = 'none';
     welcomeScreen.style.display = 'block';
@@ -431,20 +487,23 @@ function showGameResults(players) {
     playerId = null;
     players = {};
     targets = [];
+  }
+  
+  // Gestione del pulsante Torna al Menu
+  backButton.addEventListener('click', function() {
+    console.log('Pulsante Torna al Menu: click');
+    backToMainMenu();
   });
   
-  // Gestione del touch per il pulsante Torna al Menu
   backButton.addEventListener('touchend', function(e) {
     e.preventDefault();
-    resultsElement.remove();
-    gameScreen.style.display = 'none';
-    welcomeScreen.style.display = 'block';
-    
-    // Resetta lo stato del gioco
-    gameActive = false;
-    playerId = null;
-    players = {};
-    targets = [];
+    console.log('Pulsante Torna al Menu: touchend');
+    backToMainMenu();
+  });
+  
+  backButton.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    console.log('Pulsante Torna al Menu: touchstart');
   });
   
   resultsElement.appendChild(backButton);
