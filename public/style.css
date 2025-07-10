@@ -120,9 +120,10 @@ h2 {
 }
 
 #game-canvas {
-  background-color: white;
+  background-color: #333;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  touch-action: none; /* Previene lo zoom e lo scrolling durante il gioco su dispositivi touch */
 }
 
 #player-names-area {

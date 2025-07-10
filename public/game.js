@@ -173,6 +173,21 @@ playerNameInput.addEventListener('keypress', (event) => {
   }
 });
 
+// Migliora l'esperienza su dispositivi mobili per l'input del nome
+playerNameInput.addEventListener('focus', function() {
+  // Scorrere la pagina per assicurarsi che l'input sia visibile quando la tastiera appare
+  setTimeout(function() {
+    playerNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
+});
+
+// Quando l'utente tocca fuori dall'input, chiudi la tastiera
+document.addEventListener('touchend', function(e) {
+  if (e.target !== playerNameInput && document.activeElement === playerNameInput) {
+    playerNameInput.blur();
+  }
+});
+
 // Gestione degli eventi di matchmaking
 socket.on('waitingForOpponent', () => {
   waitingMessage.textContent = 'In attesa di un avversario...';
@@ -355,6 +370,7 @@ function showGameResults(players) {
   // Crea un elemento div per i risultati
   const resultsElement = document.createElement('div');
   resultsElement.className = 'game-results';
+  resultsElement.id = 'game-results';
   
   // Crea l'intestazione
   const header = document.createElement('h2');
@@ -402,10 +418,33 @@ function showGameResults(players) {
   // Aggiungi il pulsante per tornare alla schermata principale
   const backButton = document.createElement('button');
   backButton.textContent = 'Torna al Menu';
+  backButton.id = 'back-to-menu';
+  
+  // Gestione del click per il pulsante Torna al Menu
   backButton.addEventListener('click', () => {
     resultsElement.remove();
     gameScreen.style.display = 'none';
     welcomeScreen.style.display = 'block';
+    
+    // Resetta lo stato del gioco
+    gameActive = false;
+    playerId = null;
+    players = {};
+    targets = [];
+  });
+  
+  // Gestione del touch per il pulsante Torna al Menu
+  backButton.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    resultsElement.remove();
+    gameScreen.style.display = 'none';
+    welcomeScreen.style.display = 'block';
+    
+    // Resetta lo stato del gioco
+    gameActive = false;
+    playerId = null;
+    players = {};
+    targets = [];
   });
   
   resultsElement.appendChild(backButton);
